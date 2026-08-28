@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useCourses } from './api/useCourses';
 import SearchBox from './components/SearchBox';
 import CourseList from './components/CourseList';
@@ -9,10 +9,10 @@ function App() {
   const [page, setPage] = useState(0);
   const { courses, totalPages, state, errorMessage, refetch } = useCourses(keyword, page);
 
-  const handleSearch = (newKeyword: string) => {
+  const handleSearch = useCallback((newKeyword: string) => {
     setKeyword(newKeyword);
     setPage(0); // moi lan tim kiem moi, luon quay ve trang dau
-  };
+  }, []);
 
   return (
     <div style={{ padding: 24, fontFamily: 'sans-serif', maxWidth: 800, margin: '0 auto' }}>
