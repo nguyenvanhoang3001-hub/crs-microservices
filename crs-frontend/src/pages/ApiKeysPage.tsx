@@ -16,10 +16,33 @@ export default function ApiKeysPage() {
   const loadKeys = useCallback(() => {
     setLoading(true);
     getApiKeys()
-      .then((res) => setKeys(res.data))
-      .catch(() => setError('Khong tai duoc danh sach API Key.'))
+      .then((res) => {
+        setKeys(res.data);
+        setError(null);
+      })
+      .catch((err) => {
+        if (axios.isAxiosError(err) && (err.response?.status === 401 || err.response?.status === 403)) {
+          setError('Chua co token Admin hoac token da het han (401/403).');
+        } else {
+          setError('Khong tai duoc danh sach API Key.');
+        }
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  const handleQuickLogin = async () => {
+    try {
+      const res = await axios.post('http://localhost:8080/api/auth/login', {
+        username: 'admin',
+        password: 'admin123',
+      });
+      localStorage.setItem('crs_token', res.data.token);
+      setError(null);
+      loadKeys();
+    } catch {
+      alert('Khong the dang nhap admin tu dong.');
+    }
+  };
 
   useEffect(() => {
     loadKeys();
@@ -42,7 +65,7 @@ export default function ApiKeysPage() {
       if (axios.isAxiosError<ApiErrorResponse>(err) && err.response?.data?.message) {
         setError(err.response.data.message);
       } else {
-        setError('Cap API Key khong thanh conc.');
+        setError('Cap API Key khong thanh cong.');
       }
     }
   };
@@ -97,7 +120,25 @@ export default function ApiKeysPage() {
             onChange={(e) => setValidDays(e.target.value)}
           />
         </div>
-        {error && <p style={{ color: '#b91c1c' }}>{error}</p>}
+        {error && (
+          <div style={{ color: '#b91c1c', marginBottom: 12 }}>
+            <p style={{ margin: '0 0 8px 0' }}>{error}</p>
+            <button
+              type="button"
+              onClick={handleQuickLogin}
+              style={{
+                padding: '6px 12px',
+                backgroundColor: '#2563eb',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 4,
+                cursor: 'pointer',
+              }}
+            >
+              🔑 Nạp Token Admin tự động
+            </button>
+          </div>
+        )}
         <button type="submit">Cap API Key</button>
       </form>
 
