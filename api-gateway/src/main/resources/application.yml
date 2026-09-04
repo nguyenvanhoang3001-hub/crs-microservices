@@ -16,8 +16,6 @@ spring:
 jwt:
   secret: CRS-Microservices-Secret-Key-Nam-3-Hoc-Ky-2026-Doi-Trong-Thuc-Te
 
-partner:
-  api-key: crs-partner-key-2026
 
 management:
   endpoints:
